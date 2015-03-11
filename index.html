@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>BYU Schedule Planner</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script type="text/javascript" src="js/libs/jqueryui/external/jquery/jquery.js"></script>
+        <script type="text/javascript" src="js/libs/jqueryui/jquery-ui.js"></script>
+        <link rel="stylesheet" type="text/css" href="js/libs/jqueryui/jquery-ui.css"> 
+        <link rel="stylesheet" type="text/css" href="js/libs/jqueryui/jquery-ui.structure.css">
+        <link rel="stylesheet" type="text/css" href="js/libs/jqueryui/jquery-ui.theme.css"> 
+        <style>
+            body{
+                background-color: #E3E3E3;
+            }
+            
+            .screen-closed{
+                display: none;
+                height: 0px;
+            }
+            
+            #login-screen{
+                position: absolute;
+                top: 0px;
+                left: 0px;
+                width: 100%;
+                height: 100%;
+                z-index: 20;
+                background-image: url("img/blue_bg.jpg");
+            }
+            
+            #schedule-planner{
+                position: absolute;
+                top: 0px;
+                left: 0px;
+                z-index: 1;
+            }
+            
+            .wrapper-outer { width: 800px; }
+            .wrapper-inner {
+              margin: 3em 0;
+              direction: ltr;
+              text-align: left;
+              clear: both;
+              position: relative;
+              min-height: 1px;
+              overflow: hidden;
+              width: 100%;
+              background-color: #EEE;
+            }
+            .wrapper-inner table { border-collapse: separate; }
+            .wrapper-inner td, .wrapper-inner th { padding: 0; }
+            #wl-columns { width: 100%; border-width: 1px;}
+            #wl-columns>thead>tr>th {
+              text-align: center;
+              vertical-align: middle;
+              white-space: nowrap;
+              font-weight: bold;
+              border-bottom-width: 1px;
+              font-size: 11px;
+            }
+            #wl-columns>thead>tr>th:first-child,
+            .wl-events>table tr>th:first-child {
+              width: 50px;
+            }
+            th.gutter, td.gutter { width: 19px; }
+            #wl-columns>thead>tr>th:nth-child(n+2):nth-last-child(n+2) { width: 116px; }
+            .wl-border {
+              border-color: #CCC;
+              border-style: solid;
+              border-width: 0px;
+            }
+            td.wl-border, th.wl-border {
+              border-width: 0 1px;
+            }
+            div.wl-column { position:relative; }
+            .wl-vspacer { height: 400px; }
+            .wl-event-wrapper {
+              position: absolute;
+              z-index: 2;
+              left: 0px;
+              top: 18px;
+              width: 100%;
+            }
+            .wl-divider {
+              margin: 0px;
+              height: 2px;
+              overflow: hidden;
+              background-color: #EEE;
+              border: 1px solid #CCC;
+            }
+            .wl-events {
+              position: absolute;
+              width: 100%;
+              overflow-x: hidden;
+              overflow-y: auto;
+              height: 400px;
+              font-size: 11px;
+            }
+            .wl-event-slots { width: 100%; }
+            
+            #wl-rows>table th { width: 50px; }
+            #wl-rows>table th, #wl-rows>table td {
+              border-bottom-width: 1px;
+              border-bottom-color: #CCC;
+              text-align: center;
+              height: 50px;
+            }
+            #wl-rows>table tr:nth-child(even)>th, #wl-rows>table tr:nth-child(even)>td { border-bottom-style: solid; }
+            #wl-rows>table tr:nth-child(odd)>th, #wl-rows>table tr:nth-child(odd)>td { border-bottom-style: dotted; }
+            
+            .wl-event {
+              position: absolute;
+              z-index: 8;
+              width: 117px;
+              border: 1px solid #025;
+              background-color: #025;
+              color: white;
+              border-radius: 3px;
+              transition: left 500ms ease;
+            }
+            .wl-event-title { color: #EEE; background-color: #369; }
+            
+            /*.wl-first-term {
+              border-color: #072;
+              background-color: #072;
+              width: 58px;
+              z-index: 9;
+            }
+            .wl-first-term>.wl-event-title { background-color: #093; }
+            .wl-second-term {
+              border-color: #E80;
+              background-color: #E80;
+              width: 58px;
+              z-index: 9;
+            }
+            .wl-second-term>.wl-event-title { background-color: #EA0; }*/
+            
+            .non-selected{
+              width: 12px;
+              background-color: #999;
+            }
+            .non-selected > .wl-event-title{
+              display: none;
+            }
+            .non-selected > .wl-event-details{
+              display: none;    
+            }
+            .same-class-selected{
+              background-color: #666;
+            }
+            .scheduled{
+              background-color: #072;
+            }
+            .scheduled > .wl-event-title{
+              background-color: #093;
+            }
+            
+        </style>
+    </head>
+    <body>
+        <div id="login-screen">
+            <form>
+                <h1>Login</h1>
+                <input type="text"><br/>
+                <input type="password"><br/>
+                <button id="login-button">Login</button>
+            </form>
+        </div>
+        <div class="wrapper-outer">
+            <div id="calendar" class="wrapper-inner">
+              <table id="wl-columns" cellspacing="0" class="wl border-separate wl-border">
+                <thead>
+                  <tr>
+                    <th class="wl-border">&nbsp;</th>
+                    <th class="wl-border">Mon</th>
+                    <th class="wl-border">Tue</th>
+                    <th class="wl-border">Wed</th>
+                    <th class="wl-border">Thu</th>
+                    <th class="wl-border">Fri</th>
+                    <th class="wl-border">Sat</th>
+                    <th class="wl-border gutter">&nbsp;</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th class="wl-border">&nbsp;</th>
+                    <td class="wl-border"><div class="wl-column wl-vspacer" style="height: 1173px;">&nbsp;</div></td>
+                    <td class="wl-border"><div class="wl-column"></div></td>
+                    <td class="wl-border"><div class="wl-column"></div></td>
+                    <td class="wl-border"><div class="wl-column"></div></td>
+                    <td class="wl-border"><div class="wl-column"></div></td>
+                    <td class="wl-border"><div class="wl-column"></div></td>
+                    <td class="wl-border gutter">&nbsp;</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <div class="wl-event-wrapper">
+                <hr class="wl-divider">
+
+                <div class="wl-events" style="height: 1173px;">
+                  <div id="classes">
+
+            <div id="class_tile_1_1" class="wl-event non-selected" style="height:149px; top:153px; left:173px">
+              <div class="wl-event-title">
+                C S360 - 001
+              </div>
+              <div class="wl-event-details">
+                9:30am - 10:45am
+                <br>
+                B114 MARB
+                <br>
+                Clement
+              </div>
+            </div>
+
+            <div id="class_tile_3_1" class="wl-event non-selected" style="height:149px; top:153px; left:413px">
+              <div class="wl-event-title">
+                C S360 - 001
+              </div>
+              <div class="wl-event-details">
+                9:30am - 10:45am
+                <br>
+                B114 MARB
+                <br>
+                Clement
+              </div>
+            </div>
+
+
+
+            <div id="class_tile_0_2" class="wl-event non-selected" style="height:200px; top:510px; left:53px">
+              <div class="wl-event-title">
+                CSANM452R - 001
+              </div>
+              <div class="wl-event-details">
+                1:00pm - 2:50pm
+                <br>
+                1110 TMCB
+                <br>
+                Adams
+              </div>
+            </div>
+
+            <div id="class_tile_2_2" class="wl-event non-selected" style="height:200px; top:510px; left:293px">
+              <div class="wl-event-title">
+                CSANM452R - 001
+              </div>
+              <div class="wl-event-details">
+                1:00pm - 2:50pm
+                <br>
+                1110 TMCB
+                <br>
+                Adams
+              </div>
+            </div>
+
+
+
+            <div id="class_tile_1_3" class="wl-event non-selected" style="height:200px; top:918px; left:173px">
+              <div class="wl-event-title">
+                CSANM459R - 001
+              </div>
+              <div class="wl-event-details">
+                5:00pm - 6:50pm
+                <br>
+                1110 TMCB
+                <br>
+                Holladay
+              </div>
+            </div>
+
+            <div id="class_tile_3_3" class="wl-event non-selected" style="height:200px; top:918px; left:413px">
+              <div class="wl-event-title">
+                CSANM459R - 001
+              </div>
+              <div class="wl-event-details">
+                5:00pm - 6:50pm
+                <br>
+                1110 TMCB
+                <br>
+                Holladay
+              </div>
+            </div>
+
+
+
+            <div id="class_tile_0_4" class="wl-event non-selected" style="height:98px; top:0px; left:53px">
+              <div class="wl-event-title">
+                ECON110 - 002
+              </div>
+              <div class="wl-event-details">
+                8:00am - 8:50am
+                <br>
+                250 SWKT
+                <br>
+                Pope
+              </div>
+            </div>
+
+            <div id="class_tile_2_4" class="wl-event non-selected" style="height:98px; top:0px; left:293px">
+              <div class="wl-event-title">
+                ECON110 - 002
+              </div>
+              <div class="wl-event-details">
+                8:00am - 8:50am
+                <br>
+                250 SWKT
+                <br>
+                Pope
+              </div>
+            </div>
+
+            <div id="class_tile_4_4" class="wl-event non-selected" style="height:98px; top:0px; left:534px">
+              <div class="wl-event-title">
+                ECON110 - 002
+              </div>
+              <div class="wl-event-details">
+                8:00am - 8:50am
+                <br>
+                250 SWKT
+                <br>
+                Pope
+              </div>
+            </div>
+
+
+
+            <div id="class_tile_0_5" class="wl-event non-selected" style="height:302px; top:816px; left:53px">
+              <div class="wl-event-title">
+                TECH202 - 002
+              </div>
+              <div class="wl-event-details">
+                4:00pm - 6:30pm
+                <br>
+                214 CTB
+                <br>
+                Davis
+              </div>
+            </div>
+
+
+            </div>
+                  <div id="wl-rows"><table cellspacing="0" class="wl-event-slots">
+            <tbody>
+
+            <tr>
+              <th>8am</th>
+              <td><div>&nbsp;</div></td>
+            </tr>
+            <tr>
+              <th>&nbsp;</th>
+              <td><div>&nbsp;</div></td>
+            </tr>
+
+            <tr>
+              <th>9am</th>
+              <td><div>&nbsp;</div></td>
+            </tr>
+            <tr>
+              <th>&nbsp;</th>
+              <td><div>&nbsp;</div></td>
+            </tr>
+
+            <tr>
+              <th>10am</th>
+              <td><div>&nbsp;</div></td>
+            </tr>
+            <tr>
+              <th>&nbsp;</th>
+              <td><div>&nbsp;</div></td>
+            </tr>
+
+            <tr>
+              <th>11am</th>
+              <td><div>&nbsp;</div></td>
+            </tr>
+            <tr>
+              <th>&nbsp;</th>
+              <td><div>&nbsp;</div></td>
+            </tr>
+
+            <tr>
+              <th>12pm</th>
+              <td><div>&nbsp;</div></td>
+            </tr>
+            <tr>
+              <th>&nbsp;</th>
+              <td><div>&nbsp;</div></td>
+            </tr>
+
+            <tr>
+              <th>1pm</th>
+              <td><div>&nbsp;</div></td>
+            </tr>
+            <tr>
+              <th>&nbsp;</th>
+              <td><div>&nbsp;</div></td>
+            </tr>
+
+            <tr>
+              <th>2pm</th>
+              <td><div>&nbsp;</div></td>
+            </tr>
+            <tr>
+              <th>&nbsp;</th>
+              <td><div>&nbsp;</div></td>
+            </tr>
+
+            <tr>
+              <th>3pm</th>
+              <td><div>&nbsp;</div></td>
+            </tr>
+            <tr>
+              <th>&nbsp;</th>
+              <td><div>&nbsp;</div></td>
+            </tr>
+
+            <tr>
+              <th>4pm</th>
+              <td><div>&nbsp;</div></td>
+            </tr>
+            <tr>
+              <th>&nbsp;</th>
+              <td><div>&nbsp;</div></td>
+            </tr>
+
+            <tr>
+              <th>5pm</th>
+              <td><div>&nbsp;</div></td>
+            </tr>
+            <tr>
+              <th>&nbsp;</th>
+              <td><div>&nbsp;</div></td>
+            </tr>
+
+            <tr>
+              <th>6pm</th>
+              <td><div>&nbsp;</div></td>
+            </tr>
+            <tr>
+              <th>&nbsp;</th>
+              <td><div>&nbsp;</div></td>
+            </tr>
+
+            </tbody>
+            </table>
+            </div>
+                </div>
+              </div>
+            </div>
+        </div>
+        
+        <script>
+            $("#login-button").click(function(e){
+                e.preventDefault();
+                $("#login-screen").addClass("screen-closed"); 
+            });
+            
+            $(".wl-event").hover(function(e){
+                if($(e.target).hasClass("non-selected") && !$(e.target).hasClass("scheduled")){
+                    var parsedId = e.target.id.split("_");
+                    var classId = "_" + parsedId[3];
+                    var classSelector = "div[id$='" + classId + "']";
+                    $(e.target).removeClass("non-selected");
+                    $(classSelector).each(function(){
+                        if($(this).hasClass("non-selected")){
+                            $(this).addClass("same-class-selected");
+                        }
+                    });
+                }
+            },function(e){
+                if(!$(e.target).hasClass("non-selected") && !$(e.target).hasClass("scheduled")){
+                    var parsedId = e.target.id.split("_");
+                    var classId = "_" + parsedId[3];
+                    var classSelector = "div[id$='" + classId + "']";
+                    $(e.target).addClass("non-selected");
+                    $(classSelector).removeClass("same-class-selected");
+                } 
+            });
+            
+            $(".wl-event").click(function(e){
+                var parsedId = e.target.id.split("_");
+                var classId = "_" + parsedId[3];
+                var classSelector = "div[id$='" + classId + "']";
+                $(classSelector).each(function(){
+                    $(this).toggleClass("scheduled");
+                    if($(this).hasClass("scheduled")){
+                        $(this).removeClass("non-selected");
+                    } else {
+                        $(this).addClass("non-selected");
+                    }
+                });
+                $(e.target).removeClass("non-selected");
+            });
+        </script> 
+    </body>
+</html>
