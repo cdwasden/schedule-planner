@@ -1,0 +1,79 @@
+<div class="wrapper-outer">
+    <div id="calendar" class="wrapper-inner">
+        <!-- CALENDAR BACKDROP -->
+        <table id="wl-columns" cellspacing="0" class="wl border-separate wl-border">
+            <thead>
+                <tr>
+                    <th class="wl-border">&nbsp;</th>
+                    <th class="wl-border">Mon</th>
+                    <th class="wl-border">Tue</th>
+                    <th class="wl-border">Wed</th>
+                    <th class="wl-border">Thu</th>
+                    <th class="wl-border">Fri</th>
+                    <th class="wl-border">Sat</th>
+                    <th class="wl-border gutter">&nbsp;</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th class="wl-border">&nbsp;</th>
+                    <td class="wl-border"><div class="wl-column wl-vspacer" style="height: 1173px;">&nbsp;</div></td>
+                    <td class="wl-border"><div class="wl-column"></div></td>
+                    <td class="wl-border"><div class="wl-column"></div></td>
+                    <td class="wl-border"><div class="wl-column"></div></td>
+                    <td class="wl-border"><div class="wl-column"></div></td>
+                    <td class="wl-border"><div class="wl-column"></div></td>
+                    <td class="wl-border gutter">&nbsp;</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="wl-event-wrapper">
+            <hr class="wl-divider">
+
+            <div class="wl-events" style="height: 1173px;">
+
+                <!-- CLASS CELLS -->
+                <div id="classes">
+
+                    {{#each classes}}
+                    <div id="class_tile_{{dayIndex}}_{{index}}" class="wl-event non-selected" style="height: {{cellHeight}}px; top: {{cellTopPos}}px; left: {{cellLeftPos}}px;">
+                      <div class="wl-event-title">
+                        {{courseName}} - {{sectionNumber}}
+                      </div>
+                      <div class="wl-event-details">
+                        {{beginTime}} - {{endTime}}
+                        <br>
+                        {{room}} {{building}}
+                        <br>
+                        {{instructor}}
+                      </div>
+                    </div>
+                    {{/each}}
+
+
+                </div>
+          
+                <!-- CALENDAR BASE STRUCTURE -->
+                <div id="wl-rows">
+                    <table cellspacing="0" class="wl-event-slots">
+                        <tbody>
+
+                            {{#each hours}}
+                            <tr>
+                              <th>{{this}}</th>
+                              <td><div>&nbsp;</div></td>
+                            </tr>
+                            <tr>
+                              <th>&nbsp;</th>
+                              <td><div>&nbsp;</div></td>
+                            </tr>
+                            {{/each}}
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
