@@ -17,12 +17,38 @@ body{
     background-image: url("../img/blue_bg.jpg");
 }
 
+#login-title{
+    color: yellow;
+}
+
+div{
+    color: orange;
+}
+
+#txtHint{
+    color: green;
+}
+
+
+#user-input{
+    color: red;
+}
+
+#password-input{
+    color: green;
+}
+
 #schedule-planner{
     position: absolute;
     top: 0px;
     left: 0px;
     z-index: 1;
 }
+
+h2{
+    color: red;
+}
+
 
 .wrapper-outer { width: 800px; }
 .wrapper-inner {

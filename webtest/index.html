@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>BYU Schedule Planner</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script type="text/javascript" src="js/libs/jqueryui/external/jquery/jquery.js"></script>
+        <script type="text/javascript" src="js/libs/jqueryui/jquery-ui.js"></script>
+        <script type="text/javascript" src="js/libs/handlebars/handlebars-v3.0.0.js"></script>
+        <script type="text/javascript" src="js/main-calendar.tpl.js"></script>
+        <script type="text/javascript" src="js/scheduler.js"></script>
+        <link rel="stylesheet" type="text/css" href="js/libs/jqueryui/jquery-ui.css"> 
+        <link rel="stylesheet" type="text/css" href="js/libs/jqueryui/jquery-ui.structure.css">
+        <link rel="stylesheet" type="text/css" href="js/libs/jqueryui/jquery-ui.theme.css"> 
+        <link rel="stylesheet" type="text/css" href="css/scheduler.css">
+    </head>
+    <body>
+        
+	<div id="thetitle">ZEALOT RAMPAGE!!</div>
+
+
+	<div id="login-screen">
+            <div id="login-title">
+		<h1>WELCOME TO OUR SCHEDULE PLANNER!!</h1>
+	    </div>
+
+
+	    <form>
+                <h2 id="login-title-subtitle">Login</h2>
+                <input id="user-input" type="text"><br/>
+                <input id="password-input" type="password"><br/>
+                <button id="login-button">Login</button>
+            </form>
+        
+	<p>User-result :)</p>
+	<div id="user-result">User-result here</div> 
+	<p>Password result :)</p>
+	<div id="password-result">Password-result here</div>
+	
+        <script>
+		
+		$("#login-button").click(function(e) {
+			console.log("YOU ARE HERE!!");
+
+			$("#user-result").text($("#user-input").val());
+			$("#password-result").text($("#password-input").val());
+			e.preventDefault();
+		});
+	</script>
+	
+	<form>
+	LIST OF USERS <span id="txtHint">Empty</span>
+	</form>
+
+
+	<script>
+	$("#user-input").keyup(function(){
+		
+		var url;
+		url = "http://52.11.84.0/getuser?q=";
+
+		url += $("#user-input").val();
+
+		$.getJSON(url, function(data){
+			var everything;
+			everything = "<ul>";
+			var count = 0;
+			$.each(data, function(i, item){
+				everything += "<li> " + data[i].user + "</li>";
+				count++;
+			});
+			everything += "</ul>";
+			console.log("List Size=" + count);
+			$("#txtHint").html(everything);
+		})
+		
+		.done(function() {
+			//console.log("request succes");
+		})
+	});
+	</script>
+
+	
+
+
+
+	</div> <!-- END OF LOGIN-SCREEN -->
+	
+        <!-- <div id="main-calendar"> </div>-->
+
+    
+        
+    </body>
+</html>
