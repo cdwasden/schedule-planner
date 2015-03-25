@@ -37,15 +37,17 @@ and open the template in the editor.
                 <button id="login-button">Login</button>
             </form>
         
-	<p>User-result :)</p>
-	<div id="user-result">User-result here</div> 
-	<p>Password result :)</p>
-	<div id="password-result">Password-result here</div>
-	
+	<div>User Result: </div>
+		<div id="user-result">User-result here</div> 
+	<div>Password result :)</div>
+		<div id="password-result">Password-result here</div>
+	<div>Valid User: </div>
+		<div id="valid-user">NOT VALID USER</div>
+	<br>
+
         <script>
 		
 		$("#login-button").click(function(e) {
-			console.log("YOU ARE HERE!!");
 
 			$("#user-result").text($("#user-input").val());
 			$("#password-result").text($("#password-input").val());
@@ -65,11 +67,11 @@ and open the template in the editor.
 		url = "http://52.11.84.0/getuser?q=";
 
 		url += $("#user-input").val();
-
+		var count = 0; 
 		$.getJSON(url, function(data){
 			var everything;
 			everything = "<ul>";
-			var count = 0;
+			
 			$.each(data, function(i, item){
 				everything += "<li> " + data[i].user + "</li>";
 				count++;
@@ -77,11 +79,23 @@ and open the template in the editor.
 			everything += "</ul>";
 			console.log("List Size=" + count);
 			$("#txtHint").html(everything);
+			
+				
+			if(count == 1){
+				console.log("only one user matches list");
+				$("#valid-user").html("<h1>ONE USER LEFT :D</h1>");
+			}
+			else if (count == 0){
+				console.log("no user matches the list");
+				$("#valid-user").html("<h3>NO USERS :O </h3>");
+			}
+			else {
+				console.lgo("more than one user left");
+				$("#valid-user").html("<h3>LOTS OF USERS :O </h3>");
+			}
+
 		})
-		
-		.done(function() {
-			//console.log("request succes");
-		})
+
 	});
 	</script>
 
